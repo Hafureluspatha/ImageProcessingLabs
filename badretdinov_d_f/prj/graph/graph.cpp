@@ -9,7 +9,7 @@ using namespace std;
 
 int main()
 {
-  string imgInPath("C:/1ImageProcessing/Programs/testimage.jpg");
+  string imgInPath("C:/1ImageProcessing/Programs/image.jpg");
   Mat image(imread(imgInPath, IMREAD_ANYDEPTH | IMREAD_ANYCOLOR));
   vector<Mat> imout;
   split(image, imout);
