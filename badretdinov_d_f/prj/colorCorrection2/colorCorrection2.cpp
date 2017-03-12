@@ -100,9 +100,9 @@ void trackbarCallback(int position)
 
 int main(int argc, char* argv[])
 {
-	argc = 2;
+	/*argc = 2;
 	char* foo[2] = { "", "C:/1ImageProcessing/Programs/1colorCorrection1Images/2.jpg"};
-	argv = foo;
+	argv = foo;*/
 	cv::String keys = "{@src |<none>| name}";
 	int scale = 2;
 	CommandLineParser parser(argc, argv, keys);
