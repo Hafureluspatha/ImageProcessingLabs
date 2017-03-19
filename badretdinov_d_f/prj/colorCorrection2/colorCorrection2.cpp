@@ -175,7 +175,7 @@ int main(int argc, char* argv[])
 		getchar();
 		return 1;
 	}
-
+	
 	originalImage = imread(imagePath);
 	
 	cvNamedWindow("Original_Image");
@@ -190,8 +190,14 @@ int main(int argc, char* argv[])
 	cvMoveWindow("Corrected_Image", 750, 0);
 	cvMoveWindow("Original_Histo", 0, 280);
 	cvMoveWindow("Corrected_Histo", 80, 250);
-
-	imshow("Original_Image", originalImage);
+	try {
+		imshow("Original_Image", originalImage);
+	}
+	catch (exception e){
+		cout << "Wrong path to file - " << imagePath;
+		getchar();
+		return 1;
+	}
 	drawHistogram("Original_Histo", originalImage);
 	leftTrackbarCallback(leftScale);
 	waitKey(0);
