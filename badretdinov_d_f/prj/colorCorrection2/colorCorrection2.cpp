@@ -25,8 +25,7 @@ vector<int> countBoundsOfOneChannel(int leftPercentage, int rightPercentage, vec
 	for (int i = 0; i < oneVector.size(); ++i)
 	{
 		tempSum += oneVector[i];
-		if (tempSum >= leftPercentageVolume)
-		{
+		if (tempSum >= leftPercentageVolume){
 			result[0] = i;
 			break;
 		}
@@ -37,8 +36,7 @@ vector<int> countBoundsOfOneChannel(int leftPercentage, int rightPercentage, vec
 	for (int i = 255; i > -1; --i)
 	{
 		tempSum += oneVector[i];
-		if (tempSum >= rightPercentageVolume)
-		{
+		if (tempSum >= rightPercentageVolume){
 			result[1] = i;
 			break;
 		}
@@ -149,13 +147,12 @@ int main(int argc, char* argv[])
 {
 	cv::String keys = 
 		"{@src |<none>| path to file}"
-		"{@savePath |savedImage | path to save file}"
+		"{@savePath |savedImage.jpg | path to save file}"
 		"{@leftScale |3 | left side scale}"
 		"{@rightScale|3 | right side scale}"
 		;
 	CommandLineParser parser(argc, argv, keys);
-	if (!parser.has("@src"))
-	{
+	if (!parser.has("@src")){
 		cout << "Specify a path to the picture.";
 		getchar();
 		return 1;
@@ -164,20 +161,18 @@ int main(int argc, char* argv[])
 	rightScale = 3;
 	cv::String pathToSave = "savedImage";
 	cv::String imagePath = "";
-	try{
-		leftScale = stoi(parser.get<String>("@leftScale"));
-		rightScale = stoi(parser.get<String>("@rightScale"));
-		imagePath = parser.get<String>("@src");
-		pathToSave = parser.get<String>("@savePath");
-	}
-	catch (exception e){
-		cout << "Something is wrong with parameters you entered.";
+
+	leftScale = stoi(parser.get<String>("@leftScale"));
+	rightScale = stoi(parser.get<String>("@rightScale"));
+	imagePath = parser.get<String>("@src");
+	pathToSave = parser.get<String>("@savePath");
+	
+	originalImage = imread(imagePath);
+	if (!originalImage.data){
+		cout << "Wrong path to file - " << imagePath;
 		getchar();
 		return 1;
 	}
-	
-	originalImage = imread(imagePath);
-	
 	cvNamedWindow("Original_Image");
 	cvNamedWindow("Original_Histo");
 	cvNamedWindow("Corrected_Image");
@@ -190,25 +185,21 @@ int main(int argc, char* argv[])
 	cvMoveWindow("Corrected_Image", 750, 0);
 	cvMoveWindow("Original_Histo", 0, 280);
 	cvMoveWindow("Corrected_Histo", 80, 250);
-	try {
-		imshow("Original_Image", originalImage);
-	}
-	catch (exception e){
-		cout << "Wrong path to file - " << imagePath;
-		getchar();
-		return 1;
-	}
+
+	imshow("Original_Image", originalImage);
 	drawHistogram("Original_Histo", originalImage);
 	leftTrackbarCallback(leftScale);
 	waitKey(0);
 	try{
 		imwrite(pathToSave, correctedImage);
-		cout << "Changed image successfully saved in" << pathToSave;
-		waitKey(0);
+		cout << "Changed image successfully saved in " << pathToSave << endl;
+		cout << "Press any key to continue.";
+		getchar();
 	}
 	catch(exception e){
-		cout << "Wrong path for saving - " << pathToSave;
-		waitKey(0);
+		cout << "Wrong path for saving - " << pathToSave << endl;
+		cout << "Press any key to continue.";
+		getchar();
 	}
 	return 0;
 }
