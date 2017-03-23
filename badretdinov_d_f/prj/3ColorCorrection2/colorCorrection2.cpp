@@ -1,6 +1,7 @@
 #include <opencv2/opencv.hpp>
 #include<vector>
 #include<highgui.h>
+#include<Windows.h>
 
 using namespace cv;
 using namespace std;
@@ -129,18 +130,25 @@ void drawHistogram(string window, Mat image)
 	imshow(window, histImage);
 }
 
-void leftTrackbarCallback(int position)
+void leftTrackbarCallback(int position, void* info)
 {
 	changeImage(position, rightScale);
 	imshow("Corrected_Image", correctedImage);
 	drawHistogram("Corrected_Histo", correctedImage);
 }
 
-void rightTrackbarCallback(int position)
+void rightTrackbarCallback(int position, void* info)
 {
 	changeImage(leftScale, position);
 	imshow("Corrected_Image", correctedImage);
 	drawHistogram("Corrected_Histo", correctedImage);
+}
+
+bool DirectoryExists(LPCSTR path)
+{
+	DWORD dwAttrib = GetFileAttributes(path);
+
+	return (dwAttrib != INVALID_FILE_ATTRIBUTES && (dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
 }
 
 int main(int argc, char* argv[])
@@ -173,31 +181,36 @@ int main(int argc, char* argv[])
 		getchar();
 		return 1;
 	}
-	cvNamedWindow("Original_Image");
-	cvNamedWindow("Original_Histo");
-	cvNamedWindow("Corrected_Image");
-	cvNamedWindow("Corrected_Histo");
+	namedWindow("Original_Image");
+	namedWindow("Original_Histo");
+	namedWindow("Corrected_Image");
+	namedWindow("Corrected_Histo");
 
-	cvCreateTrackbar("LeftScale", "Corrected_Image", &leftScale, 100, leftTrackbarCallback);
-	cvCreateTrackbar("RightScale", "Corrected_Image", &rightScale, 100, rightTrackbarCallback);
+	createTrackbar("LeftScale", "Corrected_Image", &leftScale, 100, leftTrackbarCallback);
+	createTrackbar("RightScale", "Corrected_Image", &leftScale, 100, rightTrackbarCallback);
 
-	cvMoveWindow("Original_Image", 0, 0);
-	cvMoveWindow("Corrected_Image", 750, 0);
-	cvMoveWindow("Original_Histo", 0, 280);
-	cvMoveWindow("Corrected_Histo", 80, 250);
+	moveWindow("Original_Image", 0, 0);
+	moveWindow("Corrected_Image", 750, 0);
+	moveWindow("Original_Histo", 0, 280);
+	moveWindow("Corrected_Histo", 80, 250);
 
 	imshow("Original_Image", originalImage);
 	drawHistogram("Original_Histo", originalImage);
-	leftTrackbarCallback(leftScale);
+	leftTrackbarCallback(leftScale, 0);
+
 	waitKey(0);
-	try{
-		imwrite(pathToSave, correctedImage);
-		cout << "Changed image successfully saved in " << pathToSave << endl;
+
+	int cutPosition = pathToSave.find_last_of("/\\");
+	cv::String pathOfFolder = pathToSave.substr(0, cutPosition);
+	if (!DirectoryExists(pathOfFolder.c_str())){
+		cout << "Wrong path for saving - " << pathToSave << endl;
 		cout << "Press any key to continue.";
 		getchar();
 	}
-	catch(exception e){
-		cout << "Wrong path for saving - " << pathToSave << endl;
+	else
+	{
+		imwrite(pathToSave, correctedImage);
+		cout << "Changed image successfully saved in " << pathToSave << endl;
 		cout << "Press any key to continue.";
 		getchar();
 	}
