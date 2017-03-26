@@ -11,3 +11,6 @@ add_subdirectory(3colorCorrection2)
 
 project(4ControlWork1)
 add_subdirectory(4ControlWork1)
+
+project(5LabWork2)
+add_subdirectory(5LabWork2)
