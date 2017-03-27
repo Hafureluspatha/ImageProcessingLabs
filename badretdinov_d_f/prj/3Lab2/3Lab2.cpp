@@ -98,6 +98,7 @@ void colorCorrectImage(int leftTrackbarPosition, int rightTrackbarPosition)
 		}
 	}
 	merge(channels, correctedImage);
+	cvtColor(correctedImage, greyImage, CV_BGR2GRAY);
 }
 
 void DetectEdges()
@@ -122,13 +123,39 @@ void DetectEdges()
 
 }
 
+void applyFilters()
+{
+	colorCorrectImage(leftScale, rightScale);
+	if (blurExtent > 0)
+	{
+		Mat kernel = Mat::ones(blurExtent, blurExtent, CV_32F) / (double)(blurExtent * blurExtent);
+		Mat bluredGreyImage;
+		filter2D(greyImage, bluredGreyImage, CV_32F, kernel, Point(0, 0), 0, BORDER_DEFAULT);
+		bluredGreyImage.convertTo(convertedBluredGreyImage, CV_8U);
+	}
+	else
+	{
+		convertedBluredGreyImage = greyImage;
+	}
+	DetectEdges();
+}
+
 void blurTrackbarCallback(int position, void* info)
 {
-	Mat kernel = Mat::ones(position, position, CV_32F) / (position * position);
-	Mat bluredGreyImage;
-	filter2D(greyImage, bluredGreyImage, CV_32F, kernel, Point(0, 0), 0, BORDER_DEFAULT);
-	bluredGreyImage.convertTo(convertedBluredGreyImage, CV_8U);
-	DetectEdges();
+	blurExtent = position;
+	applyFilters();
+}
+
+void leftTrackbarCallback(int position, void* info)
+{
+	rightScale = position;
+	applyFilters();
+}
+
+void rightTrackbarCallback(int position, void* info)
+{
+	leftScale = position;
+	applyFilters();
 }
 
 bool DirectoryExists(LPCSTR path)
@@ -140,15 +167,7 @@ bool DirectoryExists(LPCSTR path)
 
 int main(int argc, char* argv[])
 {
-	//color correction(2 parameters), blur(1 parameter), edge detection
-	/* Plan
-	get the image
-	set the window with 1 trackbar
-	color correct
-	monochrom
-	blur(custom core and stuff)
-	edge detect (sobel masks and their summary)
-	*/
+	// Color correction(2 parameters), blur(1 parameter), edge detection
 
 	cv::String keys =
 		"{@src |<none>| path to file}"
@@ -159,7 +178,6 @@ int main(int argc, char* argv[])
 	CommandLineParser parser(argc, argv, keys);
 	if (!parser.has("@src")){
 		cout << "Specify a path to the picture.";
-		getchar();
 		return 1;
 	}
 
@@ -172,14 +190,13 @@ int main(int argc, char* argv[])
 	originalImage = imread(imagePath);
 	if (!originalImage.data){
 		cout << "Wrong path to file - " << imagePath;
-		getchar();
 		return 1;
 	}
 
 	namedWindow("Corrected_Image");
 	createTrackbar("Blur", "Corrected_Image", &leftScale, 100, blurTrackbarCallback);
-	colorCorrectImage(leftScale, rightScale);
-	cvtColor(correctedImage, greyImage, CV_BGR2GRAY);
-	blurTrackbarCallback(blurExtent, &greyImage);
+	createTrackbar("Black", "Corrected_Image", &leftScale, 100, leftTrackbarCallback);
+	createTrackbar("White", "Corrected_Image", &leftScale, 100, rightTrackbarCallback);
+	applyFilters();
 	waitKey(0);
 }

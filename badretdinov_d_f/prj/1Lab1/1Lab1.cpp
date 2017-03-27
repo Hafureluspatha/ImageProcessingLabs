@@ -153,6 +153,8 @@ bool DirectoryExists(LPCSTR path)
 
 int main(int argc, char* argv[])
 {
+	cout << "Press S to save your work to previously specified location." << endl;
+	cout << "Pressing any other key in program window will terminate it." << endl;
 	cv::String keys = 
 		"{@src |<none>| path to file}"
 		"{@savePath |C:/test/savedImage.jpg | path to save file}"
@@ -184,8 +186,8 @@ int main(int argc, char* argv[])
 	namedWindow("Corrected_Image");
 	namedWindow("Corrected_Histo");
 
-	createTrackbar("LeftScale", "Corrected_Image", &leftScale, 100, leftTrackbarCallback);
-	createTrackbar("RightScale", "Corrected_Image", &leftScale, 100, rightTrackbarCallback);
+	createTrackbar("Black", "Corrected_Image", &leftScale, 100, leftTrackbarCallback);
+	createTrackbar("White", "Corrected_Image", &rightScale, 100, rightTrackbarCallback);
 
 	moveWindow("Original_Image", 0, 0);
 	moveWindow("Corrected_Image", 750, 0);
@@ -196,17 +198,19 @@ int main(int argc, char* argv[])
 	drawHistogram("Original_Histo", originalImage);
 	leftTrackbarCallback(leftScale, 0);
 
-	waitKey(0);
-
-	int cutPosition = pathToSave.find_last_of("/\\");
-	cv::String pathOfFolder = pathToSave.substr(0, cutPosition);
-	if (!DirectoryExists(pathOfFolder.c_str())){
-		cout << "Wrong path for saving - " << pathToSave << endl;
-	}
-	else
+	int k(waitKey(0));
+	if (k == 115 || k == 251)
 	{
-		imwrite(pathToSave, correctedImage);
-		cout << "Changed image successfully saved in " << pathToSave << endl;
+		int cutPosition = pathToSave.find_last_of("/\\");
+		cv::String pathOfFolder = pathToSave.substr(0, cutPosition);
+		if (!DirectoryExists(pathOfFolder.c_str())){
+			cout << "Wrong path for saving - " << pathToSave << endl;
+		}
+		else
+		{
+			imwrite(pathToSave, correctedImage);
+			cout << "Changed image successfully saved in " << pathToSave << endl;
+		}
 	}
 	return 0;
 }
