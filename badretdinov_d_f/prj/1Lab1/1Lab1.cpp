@@ -155,19 +155,18 @@ int main(int argc, char* argv[])
 {
 	cv::String keys = 
 		"{@src |<none>| path to file}"
-		"{@savePath |savedImage.jpg | path to save file}"
+		"{@savePath |C:/test/savedImage.jpg | path to save file}"
 		"{@leftScale |3 | left side scale}"
 		"{@rightScale|3 | right side scale}"
 		;
 	CommandLineParser parser(argc, argv, keys);
 	if (!parser.has("@src")){
 		cout << "Specify a path to the picture.";
-		getchar();
 		return 1;
 	}
 	leftScale = 3;
 	rightScale = 3;
-	cv::String pathToSave = "savedImage";
+	cv::String pathToSave = "";
 	cv::String imagePath = "";
 
 	leftScale = stoi(parser.get<String>("@leftScale"));
@@ -178,7 +177,6 @@ int main(int argc, char* argv[])
 	originalImage = imread(imagePath);
 	if (!originalImage.data){
 		cout << "Wrong path to file - " << imagePath;
-		getchar();
 		return 1;
 	}
 	namedWindow("Original_Image");
@@ -204,15 +202,11 @@ int main(int argc, char* argv[])
 	cv::String pathOfFolder = pathToSave.substr(0, cutPosition);
 	if (!DirectoryExists(pathOfFolder.c_str())){
 		cout << "Wrong path for saving - " << pathToSave << endl;
-		cout << "Press any key to continue.";
-		getchar();
 	}
 	else
 	{
 		imwrite(pathToSave, correctedImage);
 		cout << "Changed image successfully saved in " << pathToSave << endl;
-		cout << "Press any key to continue.";
-		getchar();
 	}
 	return 0;
 }

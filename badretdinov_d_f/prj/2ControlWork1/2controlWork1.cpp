@@ -1,6 +1,7 @@
 #include <opencv2/opencv.hpp>
 #include<vector>
 #include<highgui.h>
+#include<Windows.h>
 
 using namespace cv;
 using namespace std;
@@ -40,23 +41,40 @@ int main(int argc, char* argv[])
 	circle(image, Point(900, 300), 80, white, -1, 8, 0);
 	circle(image, Point(1100, 300), 80, white, -1, 8, 0);
 
-	Mat outputImage;
-	char ker[2][2] = { { 1, 0 }, { 0, -1 } };
-	
-	Mat kernel(2, 2, CV_8SC(1), ker);
+	imshow("some", image);
 
-	filter2D(image, outputImage, CV_32F, kernel, Point(-1, -1), 0, BORDER_DEFAULT);
-	outputImage *= 127 / 255.0;
-	for (int i = 0; i < outputImage.rows; ++i)
+	Mat firstDerivative, secondDerivative, gradient;
+	char ker[2][2] = { { 1, 0 }, { 0, -1 } };
+	char ker2[2][2] = { { 0, 1 }, {-1, 0 } };
+
+	Mat kernel1(2, 2, CV_8SC(1), ker);
+	Mat kernel2(2, 2, CV_8SC(1), ker2);
+	filter2D(image, firstDerivative, CV_32F, kernel1, Point(-1, -1), 0, BORDER_DEFAULT);
+	filter2D(image, secondDerivative, CV_32F, kernel2, Point(-1, -1), 0, BORDER_DEFAULT);
+	Mat result(firstDerivative.rows, firstDerivative.cols, CV_32F);
+	for (int i = 0; i < firstDerivative.rows; ++i)
 	{
-		for (int j = 0; j < outputImage.cols; ++j)
+		for (int j = 0; j < firstDerivative.cols; ++j)
 		{
-			outputImage.at<float>(i, j) += 127;
+			result.at<float>(i, j) = sqrt(firstDerivative.at<float>(i, j) * firstDerivative.at<float>(i, j) +
+				secondDerivative.at<float>(i, j) * secondDerivative.at<float>(i, j)) * 127 / 319.0 + 127;
 		}
 	}
-	Mat convertedOutputImage;
-	outputImage.convertTo(convertedOutputImage, CV_8U);
+	// We've got all 3 not converted channels, and the general one is normalized to 0 256.
+	// IDK how to convert them to LAB and what walues they should be. Should figure this out.
 
-	imshow("", convertedOutputImage);
+	firstDerivative *= 127 / 255.0;
+	firstDerivative += 127;
+	Mat convertedfirstDerivative;
+	firstDerivative.convertTo(convertedfirstDerivative, CV_8U);
+
+	Mat labImage, threeChannelsConvertedImage;
+	cvtColor(convertedfirstDerivative, threeChannelsConvertedImage, CV_GRAY2BGR);
+	imshow("", threeChannelsConvertedImage);
+	waitKey(0);
+
+
+	cvtColor(threeChannelsConvertedImage, labImage, CV_BGR2Lab);
+	imshow("1dsf", labImage);
 	waitKey(0);
 }
