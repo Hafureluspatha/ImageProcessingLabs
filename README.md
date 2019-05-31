@@ -1,4 +1,4 @@
-# Image Processing Labs MISIS 2017
+# Image Processing Labs MISIS 2017 (C++/OpenCV)
 
 This repository contains finished assignments of the Bachelor Image Processing course at NUST MISIS.
 
